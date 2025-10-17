@@ -39,6 +39,7 @@ export default function LoginPage() {
       setLoading(false);
 
       if (response.token) {
+        console.log("Login successful:", response);
         // Choose storage based on rememberMe
         const storage = rememberMe ? localStorage : sessionStorage;
 
@@ -51,7 +52,7 @@ export default function LoginPage() {
         await Swal.fire({
           icon: "success",
           title: "Login Successful!",
-          text: `Welcome back, ${response.user?.name || "User"} 😊`,
+          text: `Welcome back, ${response?.name || "User"} 😊`,
           confirmButtonColor: "#10B981",
         });
 

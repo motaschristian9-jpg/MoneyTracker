@@ -49,16 +49,20 @@ class AuthController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
+        // Get the authenticated user
+        $user = auth()->user();
+
         return response()->json([
             'message' => 'Login successful',
-            'token' => $token
+            'token' => $token,
+            'name' => $user->name, // Return the user's name
         ]);
     }
 
     // -----------------
     // GET AUTHENTICATED USER
     // -----------------
-    public function me()
+    public function profile()
     {
         $user = JWTAuth::parseToken()->authenticate();
         return response()->json($user);

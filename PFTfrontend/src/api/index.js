@@ -1,12 +1,13 @@
 import axios from "axios";
 
+// Use environment variable for API base URL
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-// Attach JWT token automatically
+// Automatically attach JWT token from sessionStorage
 api.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem("token"); // <- use sessionStorage here
+  const token = sessionStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

@@ -1,0 +1,79 @@
+services:
+  backend:
+    build:
+      context: ./PFTbackend
+      dockerfile: Dockerfile
+    container_name: PFT_backend
+    restart: unless-stopped
+    volumes:
+      - ./PFTbackend:/var/www
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: pftdb
+      DB_USERNAME: pftuser
+      DB_PASSWORD: pftpassword
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    networks:
+      - pft_network
+
+  laravel-nginx:
+    image: nginx:alpine
+    container_name: PFT_backend_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"  # Access Laravel backend via localhost:8000
+    volumes:
+      - ./PFTbackend:/var/www
+      - ./PFTbackend/nginx-laravel.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    networks:
+      - pft_network
+
+  frontend:
+    build:
+      context: ./PFTfrontend
+      dockerfile: Dockerfile
+    container_name: PFT_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"  # Access frontend via localhost:3000
+    networks:
+      - pft_network
+
+  db:
+    image: mysql:8.0
+    container_name: PFT_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: pftdb
+      MYSQL_USER: pftuser
+      MYSQL_PASSWORD: pftpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - pft_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: PFT_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - pft_network
+
+networks:
+  pft_network:
+    driver: bridge
+
+volumes:
+  dbdata:

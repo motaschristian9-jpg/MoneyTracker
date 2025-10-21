@@ -6,17 +6,24 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\SavingsController;
+use App\Http\Middleware\CorsMiddleware;
 
 // Public routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::prefix('api')->middleware([CorsMiddleware::class])->group(function () {
 
-Route::post('/forgot-password', [PasswordController::class, 'sendResetLink']);
-Route::post('/reset-password', [PasswordController::class, 'reset']);
+    // Authentication
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['jwt.auth'])->group(function () {
-    Route::get('/profile', [AuthController::class, 'profile']);
-    Route::get('/transactions', [TransactionController::class, 'transactions']);
-    Route::get('/budgets', [BudgetController::class, 'budgets']);
-    Route::get('/savings', [SavingsController::class, 'savings']);
+    // Password
+    Route::post('/forgot-password', [PasswordController::class, 'sendResetLink']);
+    Route::post('/reset-password', [PasswordController::class, 'reset']);
+
+    // Protected routes (JWT)
+    Route::middleware(['jwt.auth'])->group(function () {
+        Route::get('/profile', [AuthController::class, 'profile']);
+        Route::get('/transactions', [TransactionController::class, 'transactions']);
+        Route::get('/budgets', [BudgetController::class, 'budgets']);
+        Route::get('/savings', [SavingsController::class, 'savings']);
+    });
 });

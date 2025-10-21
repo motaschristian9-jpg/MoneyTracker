@@ -1,5 +1,3 @@
-import Swal from "sweetalert2";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   PlusCircle,
@@ -12,7 +10,6 @@ import {
   Banknote,
   Goal,
 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   PieChart as RePieChart,
   Pie,
@@ -27,208 +24,24 @@ import {
   Legend,
 } from "recharts";
 
-import {
-  useProfile,
-  useTransactions,
-  useBudgets,
-  useSavings,
-} from "../../queries/fetchQueries.js";
-
-// import ModalForm from "../../components/ModalForm";
-
-// import { useCurrency } from "../../context/CurrencyContext";
+import { useDashboardHooks } from "../../hooks/useDashboardHooks";
 
 export default function Dashboard() {
-  const queryClient = useQueryClient();
+  const {
+    profile,
+    transactions,
+    budgets,
+    savings,
+    budgetSpent,
+    totalIncome,
+    totalExpenses,
+    netBalance,
+    COLORS,
+    savingsProgress,
+    expenseData,
+    incomeExpenseData,
+  } = useDashboardHooks();
 
-  // Use the loading/data state from the API queries
-  const { data: user } = useProfile();
-  const { data: transactions = [] } = useTransactions();
-  const { data: budgets = [] } = useBudgets();
-  const { data: goals = [] } = useSavings();
-
-  // Modal states
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("");
-  const [formData, setFormData] = useState({});
-
-  // Savings goal modal states (only for viewing existing goals)
-  const [savingsModalOpen, setSavingsModalOpen] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState(null);
-
-  //   const { symbol } = useCurrency();
-
-  const COLORS = ["#10B981", "#3B82F6", "#F59E0B", "#EF4444"];
-  const MAX_ITEMS = 9;
-
-  // The transactions dependency is now correctly initialized to []
-  const budgetSpent = (budgetId) => {
-    return transactions
-      .filter((tx) => tx.budget_id === budgetId)
-      .reduce((sum, tx) => sum + Number(tx.amount), 0);
-  };
-
-  const totalIncome = transactions
-    .filter((t) => t.type?.toLowerCase() === "income")
-    .reduce((acc, t) => acc + Number(t.amount), 0);
-
-  const totalExpenses = transactions
-    .filter((t) => t.type?.toLowerCase() === "expense")
-    .reduce((acc, t) => acc + Number(t.amount), 0);
-
-  const netBalance = totalIncome - totalExpenses;
-
-  // Sum of all target amounts
-  const totalTarget = goals.reduce(
-    (acc, goal) => acc + Number(goal.target_amount || 0),
-    0
-  );
-
-  // Sum of all contributions from all goals
-  const totalSaved = goals.reduce((acc, goal) => {
-    const goalTotal = (goal.contributions || []).reduce(
-      (sum, c) => sum + Number(c.amount || 0),
-      0
-    );
-    return acc + goalTotal;
-  }, 0);
-
-  // Compute savings progress
-  const savingsProgress =
-    totalTarget > 0 ? Math.round((totalSaved / totalTarget) * 100) : 0;
-
-  // ================= Mutations =================
-  //   const addTransactionMutation = useAddTransaction();
-  //   const addBudgetMutation = useAddBudget();
-  //   const addGoalMutation = useAddGoal();
-
-  // ================= Modal Handlers =================
-  const handleOpenModal = (type) => {
-    // Note: budgets and goals are now guaranteed to be arrays (or [])
-    if (
-      (type === "budget" && budgets.length >= MAX_ITEMS) ||
-      (type === "goal" && goals.length >= MAX_ITEMS)
-    ) {
-      Swal.fire({
-        icon: "warning",
-        title: "Limit Reached",
-        text: `You can only create up to ${MAX_ITEMS} ${
-          type === "budget" ? "budgets" : "savings goals"
-        }.`,
-        confirmButtonColor: "#F59E0B",
-      });
-      return;
-    }
-
-    setModalType(type);
-    setFormData({
-      category: "",
-      customCategory: "",
-      amount: "",
-      description: "",
-      transaction_date: "",
-      title: "",
-      target_amount: "",
-      deadline: "",
-      start_date: "",
-      end_date: "",
-    });
-    setModalOpen(true);
-  };
-
-  const handleCloseModal = () => setModalOpen(false);
-
-  const handleSubmit = async (data) => {
-    try {
-      let message = "";
-
-      if (modalType === "income" || modalType === "expense") {
-        const txData = {
-          type: modalType === "income" ? "Income" : "Expense",
-          category: data.category,
-          amount: parseFloat(data.amount),
-          transaction_date: data.transaction_date,
-          description: data.description || "",
-        };
-
-        await addTransactionMutation.mutateAsync(txData);
-        message = modalType === "income" ? "Income added!" : "Expense added!";
-
-        // ✅ Invalidate both transactions AND reports
-        queryClient.invalidateQueries(["transactions"]);
-      } else if (modalType === "budget") {
-        const budgetData = {
-          category: data.category,
-          amount: Number(data.amount),
-          start_date: data.start_date,
-          end_date: data.end_date,
-          description: data.description || "",
-        };
-
-        await addBudgetMutation.mutateAsync(budgetData);
-        message = "Budget set!";
-
-        // ✅ Invalidate budgets
-        queryClient.invalidateQueries(["budgets"]);
-      } else if (modalType === "goal") {
-        const goalData = {
-          title: data.title,
-          target_amount: Number(data.target_amount),
-          deadline: data.deadline || null,
-          description: data.description,
-        };
-
-        await addGoalMutation.mutateAsync(goalData);
-        message = "Savings goal created!";
-
-        // ✅ Invalidate both goals AND reports
-        queryClient.invalidateQueries(["goals"]);
-      }
-
-      handleCloseModal();
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: message,
-        confirmButtonColor: "#10B981",
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops!",
-        text:
-          error.response?.data?.message ||
-          "Something went wrong. Please try again.",
-        confirmButtonColor: "#EF4444",
-      });
-    }
-  };
-
-  // ================= View Goal Handler =================
-
-  // ================= Chart Data =================
-
-  // Only calculate data if not loading to prevent errors from undefined data
-  const expenseData = transactions
-    .filter((t) => t.type?.toLowerCase() === "expense")
-    .reduce((acc, tx) => {
-      const existing = acc.find((item) => item.name === tx.category);
-      if (existing) existing.value += parseFloat(tx.amount);
-      else acc.push({ name: tx.category, value: parseFloat(tx.amount) });
-      return acc;
-    }, []);
-
-  const incomeExpenseData = transactions
-    ? [
-        {
-          month: new Date().toLocaleString("default", { month: "long" }),
-          income: totalIncome,
-          expenses: totalExpenses,
-        },
-      ]
-    : [];
-
-  // ================= Main Render =================
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
@@ -243,7 +56,7 @@ export default function Dashboard() {
               <h1 className="text-3xl font-bold text-gray-800">
                 Hello,{" "}
                 <span className="bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
-                  {user?.name || "User"}
+                  {profile?.name || "User"}
                 </span>{" "}
                 👋
               </h1>
@@ -403,34 +216,34 @@ export default function Dashboard() {
             Quick Actions
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button
+            <Link
+              to="/income"
               className="flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-              onClick={() => handleOpenModal("income")}
             >
               <PlusCircle size={20} />
               <span className="font-medium">Add Income</span>
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/expenses"
               className="flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-              onClick={() => handleOpenModal("expense")}
             >
               <MinusCircle size={20} />
               <span className="font-medium">Add Expense</span>
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/budgets"
               className="flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-              onClick={() => handleOpenModal("budget")}
             >
               <PieChart size={20} />
               <span className="font-medium">Add Budget</span>
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/savings"
               className="flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-              onClick={() => handleOpenModal("goal")}
             >
               <Target size={20} />
               <span className="font-medium">Add Goal</span>
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -524,13 +337,13 @@ export default function Dashboard() {
               Savings Goals
             </h3>
             <div className="space-y-4">
-              {goals.length === 0 ? (
+              {savings.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   <Target className="text-gray-300 mx-auto mb-3" size={48} />
                   <p>No goals yet.</p>
                 </div>
               ) : (
-                goals.map((g, index) => {
+                savings.map((g, index) => {
                   // ✅ Compute total contributions as current amount
                   const currentAmount = Array.isArray(g.contributions)
                     ? g.contributions.reduce(
@@ -552,7 +365,7 @@ export default function Dashboard() {
                     >
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-gray-800">
-                          {g.title}
+                          {g.name}
                         </span>
                         <span className="text-sm font-medium text-purple-600">
                           {progress}%
@@ -684,7 +497,7 @@ export default function Dashboard() {
               });
 
               // ✅ Savings goal notifications
-              goals.forEach((g) => {
+              savings.forEach((g) => {
                 const currentAmount = Array.isArray(g.contributions)
                   ? g.contributions.reduce(
                       (sum, c) => sum + Number(c.amount || 0),

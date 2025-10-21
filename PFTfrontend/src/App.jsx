@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import TransactionPage from "./pages/userpages/TransactionPage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import LoginPage from "./pages/authpages/LoginPage.jsx";
 import SignupPage from "./pages/authpages/SignupPage.jsx";
@@ -30,6 +31,7 @@ export default function App() {
         {/* All private pages share MainLayout */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/transactions" element={<TransactionPage />} />
           {/* Add more private pages here */}
         </Route>
       </Route>

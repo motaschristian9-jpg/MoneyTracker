@@ -13,7 +13,6 @@ import {
   Calendar,
   Tag,
 } from "lucide-react";
-import Swal from "sweetalert2";
 import ModalForm from "../../components/modals/ModalForm";
 import { useTransactionHooks } from "../../hooks/useTransactionHooks";
 import { useTransactionHandlers } from "../../handlers/useTransactionHandlers";
@@ -36,34 +35,10 @@ export default function Transactions() {
     handleCloseModal,
     isFormValid,
     handleSubmit,
+    handleDelete,
   } = useTransactionHandlers();
 
-  const handleDelete = (txId) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This transaction will be deleted permanently!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#EF4444",
-      cancelButtonColor: "#10B981",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteTransactionMutation.mutateAsync(txId, {
-          onSuccess: () => {
-            Swal.fire("Deleted!", "Transaction has been deleted.", "success");
-          },
-          onError: (error) => {
-            Swal.fire(
-              "Error!",
-              error.response?.data?.message || "Failed to delete transaction.",
-              "error"
-            );
-          },
-        });
-      }
-    });
-  };
+  
 
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-0">
@@ -200,13 +175,13 @@ export default function Transactions() {
               </div>
               <div className="flex-1 min-w-0">
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Search Description
+                  Search Transaction
                 </label>
                 <input
                   type="text"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search transactions..."
+                  placeholder="Search by Name"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                 />
               </div>
@@ -235,6 +210,9 @@ export default function Transactions() {
                   <tr>
                     <th className="py-4 px-6 font-semibold text-gray-700">
                       Date
+                    </th>
+                    <th className="py-4 px-6 font-semibold text-gray-700">
+                      Name
                     </th>
                     <th className="py-4 px-6 font-semibold text-gray-700">
                       Category
@@ -282,6 +260,9 @@ export default function Transactions() {
                                   tx.transaction_date
                                 ).toLocaleDateString()
                               : "-"}
+                          </td>
+                          <td className="py-4 px-6 text-gray-800 font-medium">
+                            {tx.name || "-"}
                           </td>
                           <td className="py-4 px-6">
                             <span
@@ -351,7 +332,7 @@ export default function Transactions() {
                text-red-500 hover:text-red-700 hover:bg-red-50
                disabled:text-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed cursor-pointer"
                                 disabled={!tx.id}
-                                onClick={() => handleDelete(tx.transaction_id)}
+                                onClick={() => handleDelete(tx.id)}
                               >
                                 <Trash2 size={16} />
                               </button>

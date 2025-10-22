@@ -14,7 +14,7 @@ export const useTransactionHooks = (filterType = "all", searchText = "") => {
   const filteredTransactions = (transactions || []).filter((tx) => {
     const typeMatch =
       filterType === "all" ? true : tx.type?.toLowerCase() === filterType;
-    const descMatch = tx.description
+    const descMatch = tx.name
       ?.toLowerCase()
       .includes(searchText.toLowerCase());
     return typeMatch && descMatch;

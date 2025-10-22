@@ -25,5 +25,11 @@ Route::prefix('api')->middleware([CorsMiddleware::class])->group(function () {
         Route::get('/transactions', [TransactionController::class, 'transactions']);
         Route::get('/budgets', [BudgetController::class, 'budgets']);
         Route::get('/savings', [SavingsController::class, 'savings']);
+
+        Route::post('/transactions', [TransactionController::class, 'storeTransaction']);
+
+        Route::put('transactions/{id}', [TransactionController::class, 'updateTransaction']);
+
+        Route::delete('transactions/{id}', [TransactionController::class, 'deleteTransaction']);
     });
 });

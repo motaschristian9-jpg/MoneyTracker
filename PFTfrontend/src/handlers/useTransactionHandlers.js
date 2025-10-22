@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { useAddTransaction, useUpdateTransaction, useDeleteTransaction } from "../queries/transactionQueries";
 
 export const useTransactionHandlers = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -8,12 +9,17 @@ export const useTransactionHandlers = () => {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const addTransactionMutation = useAddTransaction();
+  const updateTransactionMutation = useUpdateTransaction();
+  const deleteTransactionMutation = useDeleteTransaction();
+
   const handleOpenModal = (type, transaction = null) => {
     setModalType(type);
 
     if (transaction) {
       setEditingId(transaction.id);
       setFormData({
+        name: transaction.name,
         category: transaction.category,
         amount: transaction.amount,
         description: transaction.description || "",
@@ -22,6 +28,7 @@ export const useTransactionHandlers = () => {
     } else {
       setEditingId(null);
       setFormData({
+        name: "",
         category: "",
         amount: "",
         description: "",
@@ -42,6 +49,7 @@ export const useTransactionHandlers = () => {
       case "income":
       case "expense":
         return (
+          formData.name?.trim() &&
           formData.category?.trim() &&
           Number(formData.amount) > 0 &&
           formData.transaction_date
@@ -69,6 +77,7 @@ export const useTransactionHandlers = () => {
     if (modalType === "income" || modalType === "expense") {
       return {
         type: modalType,
+        name: formData.name,
         category: formData.category,
         amount: Number(formData.amount),
         transaction_date: formData.transaction_date,
@@ -115,6 +124,7 @@ export const useTransactionHandlers = () => {
 
       const txData = {
         type: modalType === "income" ? "income" : "expense",
+        name: payload.name,
         category: payload.category,
         amount: Number(payload.amount),
         transaction_date: payload.transaction_date,
@@ -143,7 +153,6 @@ export const useTransactionHandlers = () => {
       }
 
       setModalOpen(false);
-      if (expenseAmount) expenseAmount("");
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
@@ -161,6 +170,33 @@ export const useTransactionHandlers = () => {
     }
   };
 
+  const handleDelete = (txId) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This transaction will be deleted permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#10B981",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteTransactionMutation.mutateAsync(txId, {
+          onSuccess: () => {
+            Swal.fire("Deleted!", "Transaction has been deleted.", "success");
+          },
+          onError: (error) => {
+            Swal.fire(
+              "Error!",
+              error.response?.data?.message || "Failed to delete transaction.",
+              "error"
+            );
+          },
+        });
+      }
+    });
+  };
+
   return {
     modalOpen,
     modalType,
@@ -170,6 +206,7 @@ export const useTransactionHandlers = () => {
     handleOpenModal,
     handleCloseModal,
     handleSubmit,
+    handleDelete,
     isFormValid,
     setFormData,
   };

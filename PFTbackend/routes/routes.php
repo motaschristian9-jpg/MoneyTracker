@@ -6,20 +6,15 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\SavingsController;
-use App\Http\Middleware\CorsMiddleware;
 
-// Public routes
-Route::prefix('api')->middleware([CorsMiddleware::class])->group(function () {
-
-    // Authentication
+// Public routes with CORS
+Route::prefix('api')->middleware(['cors'])->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-
-    // Password
     Route::post('/forgot-password', [PasswordController::class, 'sendResetLink']);
     Route::post('/reset-password', [PasswordController::class, 'reset']);
 
-    // Protected routes (JWT)
+    // Protected routes with JWT
     Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/profile', [AuthController::class, 'profile']);
         Route::get('/transactions', [TransactionController::class, 'transactions']);
@@ -27,9 +22,11 @@ Route::prefix('api')->middleware([CorsMiddleware::class])->group(function () {
         Route::get('/savings', [SavingsController::class, 'savings']);
 
         Route::post('/transactions', [TransactionController::class, 'storeTransaction']);
+        Route::post('/logout', [AuthController::class, 'logout']);
 
-        Route::put('transactions/{id}', [TransactionController::class, 'updateTransaction']);
-
-        Route::delete('transactions/{id}', [TransactionController::class, 'deleteTransaction']);
+        Route::put('/transactions/{id}', [TransactionController::class, 'updateTransaction']);
+        Route::delete('/transactions/{id}', [TransactionController::class, 'deleteTransaction']);
     });
+
+    Route::post('/refresh', [AuthController::class, 'refresh']);
 });

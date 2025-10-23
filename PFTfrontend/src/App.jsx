@@ -1,5 +1,8 @@
 import { Routes, Route } from "react-router-dom";
-import TransactionPage from "./pages/userpages/TransactionPage.jsx";
+
+import PublicRoutes from "./components/routes/PublicRoutes.jsx";
+import PrivateRoutes from "./components/routes/PrivateRoutes.jsx";
+
 import LandingPage from "./pages/LandingPage.jsx";
 import LoginPage from "./pages/authpages/LoginPage.jsx";
 import SignupPage from "./pages/authpages/SignupPage.jsx";
@@ -7,11 +10,10 @@ import GoogleAuthCallback from "./pages/authpages/GoogleAuthCallback.jsx";
 import ForgotPasswordPage from "./pages/authpages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/authpages/ResetPasswordPage.jsx";
 
-import PublicRoutes from "./components/routes/PublicRoutes.jsx";
-import PrivateRoutes from "./components/routes/PrivateRoutes.jsx";
-
 import MainLayout from "./layout/MainLayout.jsx"; // your layout
 import DashboardPage from "./pages/userpages/DashboardPage.jsx"; // your dashboard page
+import TransactionPage from "./pages/userpages/TransactionPage.jsx";
+import IncomePage from "./pages/userpages/IncomePage.jsx";
 
 export default function App() {
   return (
@@ -32,6 +34,7 @@ export default function App() {
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionPage />} />
+          <Route path="/income" element={<IncomePage />} />
           {/* Add more private pages here */}
         </Route>
       </Route>

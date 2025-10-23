@@ -17,7 +17,7 @@ import ModalForm from "../../components/modals/ModalForm";
 import { useTransactionHooks } from "../../hooks/useTransactionHooks";
 import { useTransactionHandlers } from "../../handlers/useTransactionHandlers";
 
-export default function Transactions() {
+export default function TransactionPage() {
   const [filterType, setFilterType] = useState("all");
   const [searchText, setSearchText] = useState("");
 
@@ -175,7 +175,7 @@ export default function Transactions() {
               </div>
               <div className="flex-1 min-w-0">
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Search Transaction
+                  Search Transaction Record
                 </label>
                 <input
                   type="text"
@@ -378,7 +378,7 @@ export default function Transactions() {
             ) : (
               <div className="divide-y divide-gray-100">
                 {filteredTransactions.map((tx) => {
-                  const txId = tx.id || tx._id || tx.transaction_id;
+                  const txId = tx.id
                   return (
                     <div
                       key={txId}
@@ -458,11 +458,11 @@ export default function Transactions() {
                         <div className="flex flex-col space-y-1 flex-shrink-0">
                           <button
                             className={`p-2 rounded-lg transition-colors ${
-                              tx.transaction_id
+                              tx.id
                                 ? "text-blue-500 hover:text-blue-700 hover:bg-blue-50"
                                 : "text-gray-400 cursor-not-allowed bg-gray-100"
                             }`}
-                            disabled={!tx.transaction_id}
+                            disabled={!tx.id}
                             onClick={() =>
                               handleOpenModal(tx.type?.toLowerCase(), tx)
                             }
@@ -471,12 +471,12 @@ export default function Transactions() {
                           </button>
                           <button
                             className={`p-2 rounded-lg transition-colors ${
-                              tx.transaction_id
+                              tx.id
                                 ? "text-red-500 hover:text-red-700 hover:bg-red-50"
                                 : "text-gray-400 cursor-not-allowed bg-gray-100"
                             }`}
-                            disabled={!tx.transaction_id}
-                            onClick={() => handleDelete(tx.transaction_id)}
+                            disabled={!tx.id}
+                            onClick={() => handleDelete(tx.id)}
                           >
                             <Trash2 size={14} />
                           </button>

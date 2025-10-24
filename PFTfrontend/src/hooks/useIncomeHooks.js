@@ -8,7 +8,7 @@ export const useIncomeHooks = (search = "", dateFilter = "This Month", customSta
   );
 
   const filteredIncome = incomeTransactions.filter((tx) => {
-    const descMatch = tx.description
+    const descMatch = tx.name
       ?.toLowerCase()
       .includes(search.toLowerCase());
 

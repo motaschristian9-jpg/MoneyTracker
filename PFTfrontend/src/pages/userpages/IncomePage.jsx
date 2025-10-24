@@ -18,6 +18,7 @@ import {
 import ModalForm from "../../components/modals/ModalForm";
 import { useIncomeHooks } from "../../hooks/useIncomeHooks";
 import { useTransactionHandlers } from "../../handlers/useTransactionHandlers";
+import { exportIncomeReport } from "../../utils/exportUtils";
 
 export default function IncomePage() {
   // Filters

@@ -253,7 +253,7 @@ export default function MainLayout() {
         {
           label: "Expenses",
           icon: <CreditCard size={20} />,
-          path: "/expenses",
+          path: "/expense",
         },
       ],
     },

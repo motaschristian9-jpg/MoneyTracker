@@ -1,20 +1,22 @@
 import { useTransactions } from "../queries/fetchQueries";
 
-export const useIncomeHooks = (
+export const useExpenseHooks = (
   search = "",
   dateFilter = "This Month",
   customStart = "",
   customEnd = "",
-  sourceFilter = "All Sources"
+  categoryFilter = "All Categories"
 ) => {
   const { data: transactions = [] } = useTransactions();
 
-  const incomeTransactions = transactions.filter(
-    (t) => t.type?.toLowerCase() === "income"
+  const expenseTransactions = transactions.filter(
+    (t) => t.type?.toLowerCase() === "expense"
   );
 
-  const filteredIncome = incomeTransactions.filter((tx) => {
-    const descMatch = tx.name?.toLowerCase().includes(search.toLowerCase());
+  const filteredExpenses = expenseTransactions.filter((tx) => {
+    // Ensure tx.description is a string before calling toLowerCase()
+    const description = tx.name;
+    const descMatch = description.toLowerCase().includes(search.toLowerCase());
 
     let dateMatch = true;
     const txDate = new Date(tx.transaction_date);
@@ -36,42 +38,36 @@ export const useIncomeHooks = (
       dateMatch = txDate >= start && txDate <= end;
     }
 
-    let sourceMatch = true;
-    if (sourceFilter !== "All Sources") {
-      if (sourceFilter === "Others") {
-        const mainSources = ["Salary", "Freelance", "Investments", "Business"];
-        sourceMatch = !mainSources.includes(tx.category);
-      } else {
-        sourceMatch = tx.category === sourceFilter;
-      }
+    let categoryMatch = true;
+    if (categoryFilter !== "All Categories") {
+      categoryMatch = tx.category === categoryFilter;
     }
 
-    return descMatch && dateMatch && sourceMatch;
+    return descMatch && dateMatch && categoryMatch;
   });
 
-  const totalIncome = filteredIncome.reduce(
+  const totalExpenses = filteredExpenses.reduce(
     (sum, tx) => sum + Number(tx.amount || 0),
     0
   );
 
-  const highestSource =
-    filteredIncome.length > 0
-      ? filteredIncome.reduce((max, tx) =>
+  const largestCategory =
+    filteredExpenses.length > 0
+      ? filteredExpenses.reduce((max, tx) =>
           Number(tx.amount) > Number(max.amount) ? tx : max
         ).category
       : "—";
 
-  const avgMonthlyIncome =
-    totalIncome /
+  const avgMonthlyExpenses =
+    totalExpenses /
       new Set(
-        filteredIncome.map((tx) => new Date(tx.transaction_date).getMonth())
+        filteredExpenses.map((tx) => new Date(tx.transaction_date).getMonth())
       ).size || 0;
 
   return {
-    filteredIncome,
-    totalIncome,
-    highestSource,
-    avgMonthlyIncome,
-    search,
+    filteredExpenses,
+    totalExpenses,
+    largestCategory,
+    avgMonthlyExpenses,
   };
 };

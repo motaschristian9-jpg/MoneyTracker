@@ -1,35 +1,47 @@
-// src/pages/UserPages/IncomePage.jsx
+// src/pages/UserPages/ExpensesPage.jsx
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import {
-  Plus,
+  Minus,
   Filter,
   Calendar,
   FileDown,
   Edit,
   Trash2,
   Search,
-  TrendingUp,
-  Wallet,
+  TrendingDown,
+  CreditCard,
   BarChart3,
-  DollarSign,
-  PiggyBank,
+  Target,
+  Tag,
+  MinusCircle,
 } from "lucide-react";
+import { exportExpenseReport } from "../../utils/exportUtils";
 import ModalForm from "../../components/modals/ModalForm";
-import { useIncomeHooks } from "../../hooks/useIncomeHooks";
+import { useExpenseHooks } from "../../hooks/useExpenseHooks";
 import { useTransactionHandlers } from "../../handlers/useTransactionHandlers";
-import { exportIncomeReport } from "../../utils/exportUtils";
 
-export default function IncomePage() {
+export default function ExpensesPage() {
   // Filters
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState("This Month");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
-  const [sourceFilter, setSourceFilter] = useState("All Sources");
+  const [categoryFilter, setCategoryFilter] = useState("All Categories");
 
-  const { filteredIncome, totalIncome, highestSource, avgMonthlyIncome } =
-    useIncomeHooks(search, dateFilter, customStart, customEnd, sourceFilter);
+  const {
+    filteredExpenses,
+    totalExpenses,
+    largestCategory,
+    avgMonthlyExpenses,
+  } = useExpenseHooks(
+    search,
+    dateFilter,
+    customStart,
+    customEnd,
+    categoryFilter
+  );
 
   const {
     modalOpen,
@@ -49,39 +61,39 @@ export default function IncomePage() {
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-0">
       {/* Page Header */}
       <section className="relative">
-        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-200/30 to-emerald-300/20 rounded-2xl blur opacity-40"></div>
-        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-emerald-100/50 p-4 sm:p-6 lg:p-8">
+        <div className="absolute -inset-1 bg-gradient-to-r from-red-200/30 to-red-300/20 rounded-2xl blur opacity-40"></div>
+        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-red-100/50 p-4 sm:p-6 lg:p-8">
           <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <TrendingUp className="text-white" size={20} />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <TrendingDown className="text-white" size={20} />
               </div>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-                  Income
+                  Expenses
                 </h1>
                 <p className="text-sm sm:text-base text-gray-600 mt-1">
-                  Track and manage your income records
+                  Track and manage your expense records
                 </p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
-                onClick={() => handleOpenModal("income")}
-                className="flex items-center justify-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 text-sm sm:text-base cursor-pointer"
+                onClick={() => handleOpenModal("expense")}
+                className="flex items-center justify-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 text-sm sm:text-base cursor-pointer"
               >
-                <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />
-                <span className="font-medium">Add Income</span>
+                <MinusCircle size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <span className="font-medium">Add Expense</span>
               </button>
               <button
                 onClick={() =>
-                  exportIncomeReport(filteredIncome, {
-                    totalIncome,
-                    highestSource,
-                    avgMonthlyIncome,
+                  exportExpenseReport(filteredExpenses, {
+                    totalExpenses,
+                    largestCategory,
+                    avgMonthlyExpenses,
                   })
                 }
-                className="flex items-center justify-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-green-200 text-green-700 rounded-xl shadow-lg hover:shadow-xl hover:bg-emerald-50 transform hover:-translate-y-0.5 transition-all duration-300 text-sm sm:text-base cursor-pointer"
+                className="flex items-center justify-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-red-200 text-red-700 rounded-xl shadow-lg hover:shadow-xl hover:bg-red-50 transform hover:-translate-y-0.5 transition-all duration-300 text-sm sm:text-base cursor-pointer"
               >
                 <FileDown size={16} className="sm:w-[18px] sm:h-[18px]" />
                 <span className="font-medium">Export</span>
@@ -94,18 +106,18 @@ export default function IncomePage() {
       {/* Summary Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
         <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-emerald-200/30 to-emerald-300/20 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-          <div className="relative bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-emerald-100/50 p-4 sm:p-6 hover:shadow-xl transition-shadow">
+          <div className="absolute -inset-1 bg-gradient-to-r from-red-200/30 to-red-300/20 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+          <div className="relative bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-red-100/50 p-4 sm:p-6 hover:shadow-xl transition-shadow">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                <DollarSign className="text-white" size={18} />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center">
+                <CreditCard className="text-white" size={18} />
               </div>
               <div>
                 <h3 className="text-gray-600 font-medium text-xs sm:text-sm">
-                  Total Income
+                  Total Expenses
                 </h3>
-                <p className="text-lg sm:text-2xl font-bold text-emerald-600">
-                  {totalIncome.toLocaleString()}
+                <p className="text-lg sm:text-2xl font-bold text-red-600">
+                  {totalExpenses.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -113,18 +125,18 @@ export default function IncomePage() {
         </div>
 
         <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-200/30 to-blue-300/20 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-          <div className="relative bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-blue-100/50 p-4 sm:p-6 hover:shadow-xl transition-shadow">
+          <div className="absolute -inset-1 bg-gradient-to-r from-orange-200/30 to-orange-300/20 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+          <div className="relative bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-orange-100/50 p-4 sm:p-6 hover:shadow-xl transition-shadow">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                 <BarChart3 className="text-white" size={18} />
               </div>
               <div>
                 <h3 className="text-gray-600 font-medium text-xs sm:text-sm">
-                  Highest Source
+                  Highest Category
                 </h3>
-                <p className="text-lg sm:text-2xl font-bold text-blue-600">
-                  {highestSource}
+                <p className="text-lg sm:text-2xl font-bold text-orange-600">
+                  {largestCategory}
                 </p>
               </div>
             </div>
@@ -136,14 +148,14 @@ export default function IncomePage() {
           <div className="relative bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-purple-100/50 p-4 sm:p-6 hover:shadow-xl transition-shadow">
             <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <PiggyBank className="text-white" size={18} />
+                <Target className="text-white" size={18} />
               </div>
               <div>
                 <h3 className="text-gray-600 font-medium text-xs sm:text-sm">
                   Avg. Monthly
                 </h3>
                 <p className="text-lg sm:text-2xl font-bold text-purple-600">
-                  {avgMonthlyIncome.toFixed(2).toLocaleString()}
+                  {avgMonthlyExpenses.toFixed(2).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -165,21 +177,21 @@ export default function IncomePage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Search Income Record
+                    Search Expense Record
                   </label>
                   <input
                     type="text"
                     placeholder="Search by Name"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
               </div>
 
               {/* Date Filter */}
               <div className="flex items-center space-x-3 min-w-0">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Calendar className="text-white" size={16} />
                 </div>
                 <div className="min-w-0 flex-1 sm:flex-initial">
@@ -189,7 +201,7 @@ export default function IncomePage() {
                   <select
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all cursor-pointer"
+                    className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all cursor-pointer"
                   >
                     <option>This Month</option>
                     <option>Last Month</option>
@@ -198,25 +210,26 @@ export default function IncomePage() {
                 </div>
               </div>
 
-              {/* Source Filter */}
+              {/* Category Filter */}
               <div className="flex items-center space-x-3 min-w-0">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-gray-500 to-gray-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Filter className="text-white" size={16} />
                 </div>
                 <div className="min-w-0 flex-1 sm:flex-initial">
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Source Filter
+                    Category Filter
                   </label>
                   <select
-                    value={sourceFilter}
-                    onChange={(e) => setSourceFilter(e.target.value)}
-                    className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all cursor-pointer"
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all cursor-pointer"
                   >
-                    <option>All Sources</option>
-                    <option>Salary</option>
-                    <option>Freelance</option>
-                    <option>Investments</option>
-                    <option>Business</option>
+                    <option>All Categories</option>
+                    <option>Food</option>
+                    <option>Transport</option>
+                    <option>Rent</option>
+                    <option>Utilities</option>
+                    <option>Entertainment</option>
                     <option>Others</option>
                   </select>
                 </div>
@@ -225,7 +238,7 @@ export default function IncomePage() {
 
             {/* Custom Date Range */}
             {dateFilter === "Custom Range" && (
-              <div className="flex flex-col sm:flex-row gap-4 p-4 bg-emerald-50/50 rounded-lg border border-emerald-200/50">
+              <div className="flex flex-col sm:flex-row gap-4 p-4 bg-red-50/50 rounded-lg border border-red-200/50">
                 <div className="flex-1">
                   <label className="block text-xs font-semibold text-gray-700 mb-2">
                     From Date
@@ -234,7 +247,7 @@ export default function IncomePage() {
                     type="date"
                     value={customStart}
                     onChange={(e) => setCustomStart(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
                 <div className="flex-1">
@@ -245,7 +258,7 @@ export default function IncomePage() {
                     type="date"
                     value={customEnd}
                     onChange={(e) => setCustomEnd(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
               </div>
@@ -254,24 +267,24 @@ export default function IncomePage() {
         </div>
       </section>
 
-      {/* Income Table - Desktop View */}
+      {/* Expenses Table - Desktop View */}
       <section className="relative hidden md:block">
-        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-200/30 to-emerald-300/20 rounded-2xl blur opacity-40"></div>
-        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-emerald-100/50 overflow-hidden">
-          <div className="p-6 border-b border-emerald-100/50">
+        <div className="absolute -inset-1 bg-gradient-to-r from-red-200/30 to-red-300/20 rounded-2xl blur opacity-40"></div>
+        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-red-100/50 overflow-hidden">
+          <div className="p-6 border-b border-red-100/50">
             <h3 className="text-xl font-semibold text-gray-800">
-              Income Records
+              Expense Records
             </h3>
             <p className="text-gray-600 text-sm mt-1">
-              {filteredIncome.length} record
-              {filteredIncome.length !== 1 ? "s" : ""} found
+              {filteredExpenses.length} record
+              {filteredExpenses.length !== 1 ? "s" : ""} found
             </p>
           </div>
 
           <div className="overflow-x-auto">
             <div className="max-h-96 overflow-y-auto">
               <table className="w-full text-left">
-                <thead className="bg-green-50 sticky top-0">
+                <thead className="bg-red-50 sticky top-0">
                   <tr>
                     <th className="py-4 px-6 font-semibold text-gray-700">
                       Date
@@ -294,13 +307,13 @@ export default function IncomePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredIncome.length === 0 ? (
+                  {filteredExpenses.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-12">
+                      <td colSpan="6" className="text-center py-12">
                         <div className="flex flex-col items-center space-y-3">
-                          <TrendingUp className="text-gray-300" size={48} />
+                          <TrendingDown className="text-gray-300" size={48} />
                           <span className="text-gray-500 font-medium">
-                            No income records found
+                            No expense records found
                           </span>
                           <p className="text-gray-400 text-sm">
                             Try adjusting your search or filters
@@ -309,29 +322,29 @@ export default function IncomePage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredIncome.map((tx) => (
+                    filteredExpenses.map((tx) => (
                       <tr
                         key={tx.id}
-                        className="hover:bg-emerald-50/30 transition-colors border-b border-gray-100/50"
+                        className="hover:bg-red-50/30 transition-colors border-b border-gray-100/50"
                       >
                         <td className="py-4 px-6 text-gray-700">
                           {new Date(tx.transaction_date).toLocaleDateString()}
                         </td>
-                        <td className="py-4 px-6 text-gray-700 font-medium">
+                        <td className="py-4 px-6 text-gray-800 font-medium">
                           {tx.name}
                         </td>
                         <td className="py-4 px-6">
-                          <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">
+                          <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
                             {tx.category}
                           </span>
                         </td>
                         <td className="py-4 px-6 text-gray-600 max-w-xs truncate">
                           {tx.description}
                         </td>
-                        <td className="py-4 px-6 font-bold text-emerald-600">
+                        <td className="py-4 px-6 font-bold text-red-600">
                           <div className="flex items-center space-x-1">
-                            <TrendingUp size={16} />
-                            <span>+{Number(tx.amount).toLocaleString()}</span>
+                            <TrendingDown size={16} />
+                            <span>-{Number(tx.amount).toLocaleString()}</span>
                           </div>
                         </td>
                         <td className="py-4 px-6 text-right">
@@ -369,27 +382,27 @@ export default function IncomePage() {
         </div>
       </section>
 
-      {/* Income Cards - Mobile View */}
+      {/* Expenses Cards - Mobile View */}
       <section className="relative md:hidden">
-        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-200/30 to-emerald-300/20 rounded-2xl blur opacity-40"></div>
-        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-emerald-100/50 overflow-hidden">
-          <div className="p-4 border-b border-emerald-100/50">
+        <div className="absolute -inset-1 bg-gradient-to-r from-red-200/30 to-red-300/20 rounded-2xl blur opacity-40"></div>
+        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-red-100/50 overflow-hidden">
+          <div className="p-4 border-b border-red-100/50">
             <h3 className="text-lg font-semibold text-gray-800">
-              Income Records
+              Expense Records
             </h3>
             <p className="text-gray-600 text-sm mt-1">
-              {filteredIncome.length} record
-              {filteredIncome.length !== 1 ? "s" : ""} found
+              {filteredExpenses.length} record
+              {filteredExpenses.length !== 1 ? "s" : ""} found
             </p>
           </div>
 
           <div className="max-h-96 overflow-y-auto">
-            {filteredIncome.length === 0 ? (
+            {filteredExpenses.length === 0 ? (
               <div className="text-center py-12 px-4">
                 <div className="flex flex-col items-center space-y-3">
-                  <TrendingUp className="text-gray-300" size={48} />
+                  <TrendingDown className="text-gray-300" size={48} />
                   <span className="text-gray-500 font-medium">
-                    No income records found
+                    No expense records found
                   </span>
                   <p className="text-gray-400 text-sm">
                     Try adjusting your search or filters
@@ -398,28 +411,31 @@ export default function IncomePage() {
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {filteredIncome.map((tx) => (
+                {filteredExpenses.map((tx) => (
                   <div
-                    key={tx.id}
-                    className="p-4 hover:bg-emerald-50/30 transition-colors"
+                    key={tx.transaction_id}
+                    className="p-4 hover:bg-red-50/30 transition-colors"
                   >
                     <div className="flex items-start justify-between space-x-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-2">
-                          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                            <TrendingUp
-                              size={14}
-                              className="text-emerald-600"
-                            />
+                          <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                            <TrendingDown size={14} className="text-red-600" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">
                               {tx.description || "No description"}
                             </p>
                             <div className="flex items-center space-x-2 mt-1">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
                                 {tx.category}
                               </span>
+                              {tx.expense_type && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                  <Tag size={10} className="mr-1" />
+                                  {tx.expense_type}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -433,8 +449,8 @@ export default function IncomePage() {
                               ).toLocaleDateString()}
                             </span>
                           </div>
-                          <div className="text-lg font-bold text-emerald-600">
-                            +{Number(tx.amount).toLocaleString()}
+                          <div className="text-lg font-bold text-red-600">
+                            -{Number(tx.amount).toLocaleString()}
                           </div>
                         </div>
                       </div>
@@ -447,7 +463,7 @@ export default function IncomePage() {
                           onClick={() =>
                             handleOpenModal(tx.type?.toLowerCase(), tx)
                           }
-                          disabled={!tx.id}
+                          disabled={!tx.transaction_id} // disables button if transaction_id is falsy
                         >
                           <Edit size={14} />
                         </button>
@@ -457,7 +473,7 @@ export default function IncomePage() {
                text-red-500 hover:text-red-700 hover:bg-red-50
                disabled:text-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
                           onClick={() => handleDelete(tx.id)}
-                          disabled={!tx.id} // same here
+                          disabled={!tx.id} // disables button if transaction_id is falsy
                         >
                           <Trash2 size={14} />
                         </button>
@@ -471,6 +487,7 @@ export default function IncomePage() {
         </div>
       </section>
 
+      {/* Modal for Add/Edit */}
       <ModalForm
         isOpen={modalOpen}
         onClose={handleCloseModal}

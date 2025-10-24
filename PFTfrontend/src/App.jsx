@@ -14,6 +14,7 @@ import MainLayout from "./layout/MainLayout.jsx"; // your layout
 import DashboardPage from "./pages/userpages/DashboardPage.jsx"; // your dashboard page
 import TransactionPage from "./pages/userpages/TransactionPage.jsx";
 import IncomePage from "./pages/userpages/IncomePage.jsx";
+import ExpensePage from "./pages/userpages/ExpensePage.jsx";
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionPage />} />
           <Route path="/income" element={<IncomePage />} />
+          <Route path="/expense" element={<ExpensePage />} />
           {/* Add more private pages here */}
         </Route>
       </Route>

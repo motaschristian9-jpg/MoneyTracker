@@ -40,11 +40,7 @@ export const useModalFormHooks = (modalType, editingId) => {
         };
       case "budget":
         return {
-          title: selectedBudget
-            ? `Budget: ${selectedBudget.category}`
-            : editingId
-            ? "Edit Budget"
-            : "Add Budget",
+          title: editingId ? "Edit Budget" : "Add Budget",
           icon: Target,
           color: "blue",
           gradient: "from-blue-500 to-blue-600",

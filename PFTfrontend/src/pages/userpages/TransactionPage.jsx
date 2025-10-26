@@ -501,7 +501,6 @@ export default function TransactionPage() {
         isFormValid={isFormValid}
         handleSubmit={handleSubmit}
       />
-      ;
     </div>
   );
 }

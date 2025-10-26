@@ -247,7 +247,7 @@ export default function MainLayout() {
         {
           label: "Transactions",
           icon: <List size={20} />,
-          path: "/transactions",
+          path: "/transaction",
         },
         { label: "Income", icon: <DollarSign size={20} />, path: "/income" },
         {
@@ -260,20 +260,20 @@ export default function MainLayout() {
     {
       title: "Management",
       items: [
-        { label: "Budgets", icon: <PieChart size={20} />, path: "/budgets" },
-        { label: "Savings", icon: <Target size={20} />, path: "/savings" },
+        { label: "Budgets", icon: <PieChart size={20} />, path: "/budget" },
+        { label: "Savings", icon: <Target size={20} />, path: "/saving" },
       ],
     },
     {
       title: "Insights",
       items: [
-        { label: "Reports", icon: <BarChart2 size={20} />, path: "/reports" },
+        { label: "Reports", icon: <BarChart2 size={20} />, path: "/report" },
       ],
     },
     {
       title: "System",
       items: [
-        { label: "Settings", icon: <Settings size={20} />, path: "/settings" },
+        { label: "Settings", icon: <Settings size={20} />, path: "/setting" },
       ],
     },
   ];

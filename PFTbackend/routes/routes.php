@@ -22,10 +22,13 @@ Route::prefix('api')->middleware(['cors'])->group(function () {
         Route::get('/savings', [SavingsController::class, 'savings']);
 
         Route::post('/transactions', [TransactionController::class, 'storeTransaction']);
+        Route::post('/budgets', [BudgetController::class, 'storeBudget']);
         Route::post('/logout', [AuthController::class, 'logout']);
 
         Route::put('/transactions/{id}', [TransactionController::class, 'updateTransaction']);
+
         Route::delete('/transactions/{id}', [TransactionController::class, 'deleteTransaction']);
+        Route::delete('/budgets/{id}', [BudgetController::class, 'deleteBudget']);
     });
 
     Route::post('/refresh', [AuthController::class, 'refresh']);

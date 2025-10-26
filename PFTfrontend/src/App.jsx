@@ -15,6 +15,7 @@ import DashboardPage from "./pages/userpages/DashboardPage.jsx"; // your dashboa
 import TransactionPage from "./pages/userpages/TransactionPage.jsx";
 import IncomePage from "./pages/userpages/IncomePage.jsx";
 import ExpensePage from "./pages/userpages/ExpensePage.jsx";
+import BudgetPage from "./pages/userpages/BudgetPage.jsx";
 
 export default function App() {
   return (
@@ -34,9 +35,10 @@ export default function App() {
         {/* All private pages share MainLayout */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/transactions" element={<TransactionPage />} />
+          <Route path="/transaction" element={<TransactionPage />} />
           <Route path="/income" element={<IncomePage />} />
           <Route path="/expense" element={<ExpensePage />} />
+          <Route path="/budget" element={<BudgetPage />} />
           {/* Add more private pages here */}
         </Route>
       </Route>

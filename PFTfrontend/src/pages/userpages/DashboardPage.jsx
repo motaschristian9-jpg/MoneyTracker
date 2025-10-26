@@ -318,7 +318,7 @@ export default function Dashboard() {
           </div>
           <div className="mt-6 text-right">
             <Link
-              to="/transactions"
+              to="/transaction"
               className="inline-flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium transition-colors duration-200"
             >
               <span>View All Transactions</span>
